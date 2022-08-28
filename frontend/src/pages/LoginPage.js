@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import ContentContainer from "../components/ContentContainer";
+import { useGlobalContext } from "../context";
 
 function LoginPage() {
+  const { loginUser } = useGlobalContext();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -14,6 +16,7 @@ function LoginPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    loginUser(formData.email, formData.password);
   };
   return (
     <ContentContainer className="flex flex-col justify-center items-center">
@@ -32,9 +35,13 @@ function LoginPage() {
             </label>
             <input
               required
+<<<<<<< HEAD
               className="py-1 px-2 shadow-lg focus:outline 
               focus:outline-4 focus:outline-blue-500/70 focus:rounded-sm 
               focus:shadow-blue-500/70 focus:m-1"
+=======
+              className="py-1 px-2 shadow-lg focus:border-none"
+>>>>>>> e96f6a01b6097ed5a2955665d07f36e8e4022ce6
               onChange={handleChange}
               id="email"
               value={formData.email}
@@ -49,9 +56,13 @@ function LoginPage() {
             </label>
             <input
               required
+<<<<<<< HEAD
               className="py-1 px-2 shadow-lg focus:outline 
               focus:outline-4 focus:outline-blue-500/70 focus:rounded-sm 
               focus:shadow-blue-500/70 focus:m-1"
+=======
+              className="py-1 px-2 shadow-lg focus:border-none"
+>>>>>>> e96f6a01b6097ed5a2955665d07f36e8e4022ce6
               value={formData.password}
               id="password"
               onChange={handleChange}

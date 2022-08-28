@@ -1,18 +1,27 @@
 import Navbar from "./components/Navbar";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect, useLocation } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage";
-import PracticePage from "./pages/PracticePage";
 import QuestionsContext from "./questionsContext";
 import "./css/custom.css";
 import React from "react";
-import PracticeConfigPage from "./pages/PracticeConfigPage";
 import { useGlobalContext } from "./context";
-import PracticeResultsPage from "./pages/PracticeResultsPage";
+import PlayMainPage from "./pages/PlayMainPage";
+import SingleConfigPage from "./pages/SingleConfigPage";
+import SingleResultsPage from "./pages/SingleResultsPage";
+import SinglePlayPage from "./pages/SinglePlayPage";
+import PrivateRoute from "./components/PrivateRoute";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
-  const { dispatch } = useGlobalContext();
+  const location = useLocation();
+  const {
+    dispatch,
+    loadUser,
+    state: { user, loading },
+  } = useGlobalContext();
   React.useEffect(() => {
     const navHeight = document
       .querySelector("nav")
@@ -20,30 +29,51 @@ function App() {
     document.getElementById("main-container").style.paddingTop =
       navHeight + "px";
     dispatch({ type: "SET_NAV_HEIGHT", payload: navHeight });
-  }, [dispatch]);
+    loadUser();
+  }, [dispatch, location, loadUser]);
   return (
     <>
       <Navbar />
       <main id="main-container" className="bg-gray-800">
         <Switch>
           <Route path="/" exact component={HomePage} />
-          <Route path="/login" exact component={LoginPage} />
-          <Route path="/register" exact component={RegisterPage} />
+          <Route exact path={"/login"}>
+            {user && !loading ? <Redirect to="/" /> : <LoginPage />}
+          </Route>
+          <Route exact path={"/register"}>
+            {user && !loading ? <Redirect to="/" /> : <RegisterPage />}
+          </Route>
           <QuestionsContext>
-            <Route
-              path="/practice-config"
+            <PrivateRoute path="/play" exact component={PlayMainPage} />
+            <PrivateRoute
+              path="/single-play"
               exact
-              component={PracticeConfigPage}
+              component={SinglePlayPage}
             />
-            <Route path="/practice" exact component={PracticePage} />
-            <Route
-              path="/practice-results"
+            <PrivateRoute
+              path="/single-config"
               exact
-              component={PracticeResultsPage}
+              component={SingleConfigPage}
+            />
+            <PrivateRoute
+              path="/single-results"
+              exact
+              component={SingleResultsPage}
             />
           </QuestionsContext>
         </Switch>
       </main>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </>
   );
 }

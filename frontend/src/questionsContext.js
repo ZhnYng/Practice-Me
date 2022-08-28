@@ -10,8 +10,8 @@ const Context = ({ children }) => {
     console.log(state);
   }, [state]);
   let currentTopic =
-    state.practice?.topics[
-      Math.floor(Math.random() * state.practice.topics?.length)
+    state.single?.topics[
+      Math.floor(Math.random() * state.single.topics?.length)
     ];
   const fetchQuestion = React.useCallback(async () => {
     const config = {
@@ -20,7 +20,7 @@ const Context = ({ children }) => {
       },
     };
     const body = JSON.stringify({
-      difficulty: state.practice.difficulty,
+      difficulty: state.single.difficulty,
 
       topic: currentTopic,
     });
@@ -32,20 +32,41 @@ const Context = ({ children }) => {
       //   answer: '5'
       // }
       dispatch({
-        type: "set_practice_question",
+        type: "set_single_question",
         payload: { ...response.data, currentTopic },
       });
     } catch (error) {
       console.error(error.message);
     }
-  }, [state.practice.difficulty, currentTopic]);
+  }, [state.single.difficulty, currentTopic]);
 
+  const updateScore = async (delta_score) => {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const body = JSON.stringify({
+      delta_score,
+    });
+    try {
+      await axios.put(`/api/auth/score`, body, config);
+      // console.log(response.data)
+      // response.data = {
+      //   question: 'sdkfjlskdf',
+      //   answer: '5'
+      // }
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
   return (
     <QuestionsContext.Provider
       value={{
         state,
         dispatch,
         fetchQuestion,
+        updateScore,
       }}
     >
       {children}
