@@ -4,6 +4,7 @@ import { useHistory } from "react-router-dom";
 import { useQuestionsContext } from "../questionsContext";
 import { Switch } from "@headlessui/react";
 import { useGlobalContext } from "../context";
+import axios from "axios";
 
 const all_topics = [
   "array",
@@ -38,7 +39,7 @@ function TopicBox({ topic, handleChange }) {
   );
 }
 
-function SingleConfigPage() {
+function MultiConfigPage() {
   const history = useHistory();
   const { dispatch, state } = useQuestionsContext();
   const { setAlert } = useGlobalContext();
@@ -48,27 +49,37 @@ function SingleConfigPage() {
   });
   React.useEffect(() => {
     dispatch({
-      type: "update_single_start_status",
+      type: "update_multi_start_status",
       payload: false,
     });
-    // dispatch({ type: "reset_single_config" });
+    // dispatch({ type: "reset_multi_config" });
   }, [dispatch]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.topics.length === 0) {
       setAlert("error", "Please choose at least one topic");
       return;
     }
     dispatch({
-      type: "update_single_preference",
+      type: "update_multi_preference",
       payload: { difficulty: formData.difficulty, topics: formData.topics },
     });
     dispatch({
-      type: "update_single_start_status",
+      type: "update_multi_start_status",
       payload: true,
     });
-    history.push("/single-play");
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const body = JSON.stringify({ ...formData, ranked: state.multi.ranked });
+
+    const response = await axios.post("/create-room", body, config);
+    history.push("/multi-play/" + response.data.code);
   };
 
   const handleChange = (e) => {
@@ -150,7 +161,7 @@ function SingleConfigPage() {
               type="submit"
               className="bg-blue-600 font-bold hover:bg-blue-800 font-space transition-all text-white self-start shadow-lg py-1 px-2"
             >
-              this.begin()
+              new Room()
             </button>
 
             <Switch.Group>
@@ -159,20 +170,20 @@ function SingleConfigPage() {
                   Ranked
                 </Switch.Label>
                 <Switch
-                  checked={state.single.ranked}
+                  checked={state.multi.ranked}
                   onChange={() => {
                     dispatch({
-                      type: "update_single_ranked",
-                      payload: !state.single.ranked,
+                      type: "update_multi_ranked",
+                      payload: !state.multi.ranked,
                     });
                   }}
                   className={`${
-                    state.single.ranked ? "bg-blue-600" : "bg-gray-200"
+                    state.multi.ranked ? "bg-blue-600" : "bg-gray-200"
                   } relative inline-flex h-6 w-11 items-center rounded-full transition-colors outline-none `}
                 >
                   <span
                     className={`${
-                      state.single.ranked ? "translate-x-6" : "translate-x-1"
+                      state.multi.ranked ? "translate-x-6" : "translate-x-1"
                     } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
                   />
                 </Switch>
@@ -185,4 +196,4 @@ function SingleConfigPage() {
   );
 }
 
-export default SingleConfigPage;
+export default MultiConfigPage;
